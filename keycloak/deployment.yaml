@@ -33,6 +33,17 @@ spec:
         readinessProbe:
           exec:
             command: [curl, -f, http://localhost:9990/]
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command: [curl, -f, http://localhost:9990/]
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         volumeMounts:
           - name: keycloak-vol
             mountPath: /opt/jboss/keycloak/imports

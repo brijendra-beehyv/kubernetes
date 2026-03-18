@@ -37,6 +37,26 @@ spec:
             value: events
           - name: REDIS_URL
             value: redis:6379
+        readinessProbe:
+          exec:
+            command:
+              - curl
+              - -f
+              - http://localhost:8070/health
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+              - curl
+              - -f
+              - http://localhost:8070/health
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         ports:
         - containerPort: 8070
         resources:

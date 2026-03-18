@@ -44,3 +44,18 @@ spec:
               - localhost:9200/_cluster/health
               - --header
               - "Authorization: Basic ZWxhc3RpYzpEa0llZFBQU0Ni"
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+              - curl
+              - localhost:9200/_cluster/health
+              - --header
+              - "Authorization: Basic ZWxhc3RpYzpEa0llZFBQU0Ni"
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3

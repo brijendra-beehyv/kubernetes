@@ -39,6 +39,22 @@ spec:
               - -t1
               - --spider
               - http://localhost:8765/notification-service/v1/health
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+              - wget
+              - -nv
+              - -t1
+              - --spider
+              - http://localhost:8765/notification-service/v1/health
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           requests:
             memory: "128Mi"
