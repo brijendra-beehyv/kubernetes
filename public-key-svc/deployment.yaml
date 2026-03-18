@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: public-key-service
+spec:
+  selector:
+    app: public-key-service
+  ports:
+  - port: 3300
+    targetPort: 3300
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: public-key-service
+spec:
+  selector:
+    matchLabels:
+      app: public-key-service
+  template:
+    metadata:
+      labels:
+        app: public-key-service
+    spec:
+      containers:
+      - name: public-key-service
+        image: ghcr.io/sunbird-rc/sunbird-rc-public-key-service
+        env:
+          - name: CONFIG_BASE_PATH
+            value: /etc/keys
+        volumeMounts:
+          - name: public-key-service
+            mountPath: /etc/keys
+        readinessProbe:
+          exec:
+            command:
+              - curl
+              - -f
+              - localhost:3300/public-key-service/api/v1/health
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 3300
+
+      volumes:
+        - name: public-key-service
+          configMap:
+            name: keycloak-config

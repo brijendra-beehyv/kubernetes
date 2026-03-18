@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: es
+spec:
+  type: LoadBalancer
+  selector:
+    app: es
+  ports:
+  - name: http
+    port: 9200
+    targetPort: 9200
+  - name: transport
+    port: 9300
+    targetPort: 9300
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es
+spec:
+  selector:
+    matchLabels:
+      app: es
+  template:
+    metadata:
+      labels:
+        app: es
+    spec:
+      containers:
+      - name: es
+        image: docker.elastic.co/elasticsearch/elasticsearch:6.8.23
+        ports:
+          - containerPort: 9200
+          - containerPort: 9300
+        envFrom:
+        - secretRef:
+            name: es-secret
+        readinessProbe:
+          exec:
+            command:
+              - curl
+              - localhost:9200/_cluster/health
+              - --header
+              - "Authorization: Basic ZWxhc3RpYzpEa0llZFBQU0Ni"

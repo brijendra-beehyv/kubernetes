@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-storage
+spec:
+  selector:
+    app: file-storage
+  ports:
+  - port: 9000
+    targetPort: 9000
+    name: p1
+  - port: 9001
+    targetPort: 9001
+    name: p2
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: file-storage
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  hostPath:
+    path: /tmp/fs-data
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: file-storage-claim
+spec:
+  resources:
+    requests:
+      storage: 4Gi
+  volumeName: file-storage
+  accessModes:
+    - ReadWriteOnce
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-storage
+spec:
+  selector:
+    matchLabels:
+      app: file-storage
+  template:
+    metadata:
+      labels:
+        app: file-storage
+    spec:
+      containers:
+      - name: file-storage
+        image: quay.io/minio/minio
+        env:
+          - name: MINIO_ROOT_USER
+            value: admin
+          - name: MINIO_ROOT_PASSWORD
+            value: "12345678"
+        volumeMounts:
+          - name: file-storage-vol
+            mountPath: /data
+        args:
+          - server
+          - --address
+          - 0.0.0.0:9000
+          - --console-address
+          - 0.0.0.0:9001
+          - /data
+        readinessProbe:
+          exec:
+            command:
+              - curl
+              - -f
+              - http://localhost:9000/minio/health/live
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 9000
+        - containerPort: 9001
+
+      volumes:
+        - name: file-storage-vol
+          persistentVolumeClaim:
+            claimName: file-storage-claim

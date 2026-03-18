@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak
+data:
+  DB_VENDOR: postgres
+  DB_ADDR: db
+  DB_PORT: "5432"
+  DB_DATABASE: registry
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  KEYCLOAK_USER: admin
+  KEYCLOAK_PASSWORD: admin
+  KEYCLOAK_IMPORT: /opt/jboss/keycloak/imports/realm-export.json
+  PROXY_ADDRESS_FORWARDING: "true"

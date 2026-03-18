@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: credential-schema
+spec:
+  selector:
+    app: credential-schema
+  ports:
+  - port: 3333
+    targetPort: 3333
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credential-schema
+spec:
+  selector:
+    matchLabels:
+      app: credential-schema
+  template:
+    metadata:
+      labels:
+        app: credential-schema
+    spec:
+      containers:
+      - name: credential-schema
+        image: ghcr.io/sunbird-rc/sunbird-rc-credential-schema:v2.0.0
+        env:
+          - name: DATABASE_URL
+            value: postgres://postgres:postgres@db:5432/registry
+          - name: IDENTITY_BASE_URL
+            value: http://identity:3332
+          - name: JWKS_URI
+            value: ""
+          - name: ENABLE_AUTH
+            value: "false"
+        readinessProbe:
+          exec:
+            command:
+             - curl
+             - -f
+             - http://localhost:3333/health
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 3333

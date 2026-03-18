@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+spec:
+  selector:
+    app: vault
+  ports:
+  - port: 8200
+    targetPort: 8200
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault
+spec:
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+      - name: vault
+        image: vault:1.13.3
+        securityContext:
+          capabilities:
+            add: [IPC_LOCK]
+        args:
+          - server
+          - -config=/etc/vault/vault.json
+        readinessProbe:
+          exec:
+            command:
+              - wget
+              - --spider
+              - http://127.0.0.1:8200/v1/sys/health
+        volumeMounts:
+          - name: vault-json
+            mountPath: /etc/vault
+          - name: vault-pvc
+            mountPath: /vault/file
+        env:
+          - name: SKIP_CHOWN
+            value: "true"
+          - name: VAULT_ADDR
+            value: http://127.0.0.1:8200
+          - name: VAULT_API_ADDR
+            value: http://127.0.0.1:8200
+          - name: VAULT_ADDRESS
+            value: http://127.0.0.1:8200
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 8200
+
+      volumes:
+        - name: vault-json
+          configMap:
+            name: vault-json
+        - name: vault-pvc
+          persistentVolumeClaim:
+            claimName: vault-pvc
