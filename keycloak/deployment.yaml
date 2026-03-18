@@ -3,9 +3,8 @@ kind: Service
 metadata:
   name: keycloak
 spec:
-  type: LoadBalancer
   selector:
-    app: myapp
+    app: keycloak
   ports:
   - name: p1
     port: 8080
