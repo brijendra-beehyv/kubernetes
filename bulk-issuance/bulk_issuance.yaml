@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bulk-issuance
+spec:
+  selector:
+    app: bulk-issuance
+  ports:
+  - port: 5665
+    targetPort: 5665
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
