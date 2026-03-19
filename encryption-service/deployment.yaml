@@ -29,26 +29,6 @@ spec:
         envFrom:
           - configMapRef:
               name: encryption-service
-        readinessProbe:
-          exec:
-            command:
-              - curl
-              - -f
-              - http://localhost:8013/health
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        livenessProbe:
-          exec:
-            command:
-              - curl
-              - -f
-              - http://localhost:8013/health
-          initialDelaySeconds: 120
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         resources:
           requests:
             memory: "128Mi"

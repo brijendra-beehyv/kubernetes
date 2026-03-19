@@ -38,6 +38,13 @@ spec:
               - wget
               - --spider
               - http://127.0.0.1:8200/v1/sys/health
+        livenessProbe:
+          initialDelaySeconds: 120
+          exec:
+            command:
+              - wget
+              - --spider
+              - http://127.0.0.1:8200/v1/sys/health
         volumeMounts:
           - name: vault-json
             mountPath: /etc/vault
