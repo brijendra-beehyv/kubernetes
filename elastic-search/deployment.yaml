@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: es
 spec:
-  type: LoadBalancer
   selector:
     app: es
   ports:
@@ -59,3 +58,7 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 50m
