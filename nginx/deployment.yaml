@@ -33,6 +33,20 @@ spec:
               - curl
               - -f
               - localhost:80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+              - curl
+              - -f
+              - localhost:80
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           requests:
             memory: "128Mi"

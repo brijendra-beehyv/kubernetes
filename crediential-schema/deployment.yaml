@@ -41,6 +41,20 @@ spec:
              - curl
              - -f
              - http://localhost:3333/health
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          exec:
+            command:
+             - curl
+             - -f
+             - http://localhost:3333/health
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           requests:
             memory: "128Mi"
