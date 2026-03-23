@@ -8,15 +8,19 @@ spec:
   ports:
   - port: 5432
     targetPort: 5432
+  clusterIP: None
+
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: db
 spec:
   selector:
     matchLabels:
       app: db
+  serviceName: db
+  replicas: 1
   template:
     metadata:
       labels:
@@ -43,10 +47,6 @@ spec:
               - pg_isready
               - -U
               - postgres
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         livenessProbe:
           exec:
             command:
@@ -54,11 +54,16 @@ spec:
               - -U
               - postgres
           initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 50m
 
-      volumes:
-        - name: db-vol
-          persistentVolumeClaim:
-            claimName: "db-pvc"
+  volumeClaimTemplates:
+  - metadata:
+      name: db-vol
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

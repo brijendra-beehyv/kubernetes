@@ -5,7 +5,7 @@ metadata:
 data:
   DATABASE_URL: postgres://postgres:postgres@db:5432/registry
   VAULT_ADDR: http://vault:8200
-  VAULT_TOKEN: hvs.2rvyxNeZPewIn4qeyC4UL9q7
+  VAULT_TOKEN: hvs.E3nHHm5Sabycb0Nbz4PlbDNv
   VAULT_BASE_URL: http://vault:8200/v1
   VAULT_ROOT_PATH: http://vault:8200/v1/kv
   VAULT_TIMEOUT: "5000"
