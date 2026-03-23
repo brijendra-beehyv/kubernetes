@@ -8,21 +8,26 @@ spec:
   ports:
   - port: 8200
     targetPort: 8200
+  clusterIP: None
 
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: vault
 spec:
   selector:
     matchLabels:
       app: vault
+  serviceName: vault
+  replicas: 1
   template:
     metadata:
       labels:
         app: vault
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - name: vault
         image: vault:1.13.3
@@ -48,11 +53,9 @@ spec:
         volumeMounts:
           - name: vault-json
             mountPath: /etc/vault
-          - name: vault-pvc
+          - name: vault-vol
             mountPath: /vault/file
         env:
-          - name: SKIP_CHOWN
-            value: "true"
           - name: VAULT_ADDR
             value: http://127.0.0.1:8200
           - name: VAULT_API_ADDR
@@ -65,11 +68,17 @@ spec:
             cpu: "50m"
         ports:
         - containerPort: 8200
-
+      
       volumes:
         - name: vault-json
           configMap:
             name: vault-json
-        - name: vault-pvc
-          persistentVolumeClaim:
-            claimName: vault-pvc
+
+  volumeClaimTemplates:
+  - metadata:
+      name: vault-vol
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

@@ -8,44 +8,62 @@ spec:
   ports:
   - port: 9092
     targetPort: 9092
+  clusterIP: None
 
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: kafka
 spec:
   selector:
     matchLabels:
       app: kafka
+  serviceName: kafka-service
+  replicas: 1
   template:
     metadata:
       labels:
         app: kafka
     spec:
+      securityContext:
+        fsGroup: 1000
+
+      initContainers:
+      - name: fix-permissions
+        image: busybox:latest
+        command: ["sh", "-c", "chown -R 1000:1000 /var/lib/kafka/data"]
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+        - name: kafka
+          mountPath: /var/lib/kafka/data
+
       containers:
-      - name: kafka
-        image: confluentinc/cp-kafka:6.2.0
-        ports:
-          - containerPort: 9092
-        envFrom:
-        - configMapRef:
-            name: kafka
-        readinessProbe:
-          tcpSocket:
-            port: 9092
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        livenessProbe:
-          tcpSocket:
-            port: 9092
-          initialDelaySeconds: 120
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "50m"
+        - name: kafka
+          image: confluentinc/cp-kafka:6.2.0
+          ports:
+            - containerPort: 9092
+          envFrom:
+            - configMapRef:
+                name: kafka
+          volumeMounts:
+            - name: kafka
+              mountPath: /var/lib/kafka/data
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 60
+          livenessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 120
+
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
